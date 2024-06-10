@@ -191,3 +191,5 @@ touch app\resources\views\components\nav-link.blade.php
 <!-- Repeat for about.blade.php -->
 <!-- Repeat for contact.blade.php -->
 ```
+
+12. Optionally you replace the profile image and the email for both desktop and mobile view
