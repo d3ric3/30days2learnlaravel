@@ -94,25 +94,25 @@ touch app\resources\views\components\layout.blade.php
 
 9. Edit all blade file
 
-```php
-  // home.blade.php
-  <x-layout>
-    <h1>Hello from Home Page.</h1>
-  </x-layout>
+```html
+// home.blade.php
+<x-layout>
+  <h1>Hello from Home Page.</h1>
+</x-layout>
 ```
 
-```php
-  // about.blade.php
-  <x-layout>
-    <h1>Hello from About Page.</h1>
-  </x-layout>
+```html
+// about.blade.php
+<x-layout>
+  <h1>Hello from About Page.</h1>
+</x-layout>
 ```
 
-```php
-  // contact.blade.php
-  <x-layout>
-    <h1>Hello from Contact Page.</h1>
-  </x-layout>
+```html
+// contact.blade.php
+<x-layout>
+  <h1>Hello from Contact Page.</h1>
+</x-layout>
 ```
 
 ## EP04
@@ -125,13 +125,13 @@ touch app\resources\views\components\nav-link.blade.php
 
 2. Edit nav-link.blade.php
 
-```php
+```html
 <a {{ $attributes }}>{{ $slot }}</a>
 ```
 
 2. Edit layout.blade.php
 
-```php
+```html
 <body>
   <nav>
     <x-nav-link href="/">Home</x-nav-link>
@@ -145,18 +145,49 @@ touch app\resources\views\components\nav-link.blade.php
 
 3. Go to https://tailwindui.com/components/application-ui/application-shells/stacked
 
-4. Hit the copy icon next to HTML ˅
+4. Hit the copy icon next to `HTML ˅`
 
 5. Select all the content of body tag in the layout.blade.php and hit ctrl+v
 
 6. Add tailwindcss script within the head tag
 
-```php
+```html
 
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 ```
 
-7.  Remove the whole dropdown that contains "My Profile" for both desktop and mobile screen
+7.  Remove the whole dropdown that contains `"My Profile"` for both desktop and mobile screen
 
-8.  Edit links to Home, About and Contact
+8.  Edit the original nav links in the tailwindcss theme to `Home`, `About` and `Contact` in both dekstop and mobile view
+
+9.  Edit main tag to include `$slot`
+
+```html
+<main>
+  <div class="long tailwindcss style here">{{ $slot }}</div>
+</main>
+```
+
+10. Replace the `Dashboard` text in the H1 tag to `{{ $heading }}`
+
+```html
+<header>
+  <div>
+    <h1>{{ $heading }}</h1>
+  </div>
+</header>
+```
+
+11. Add heading slot to all blade file
+
+```html
+<!-- home.blade.php -->
+<x-layout>
+  <x-slot:heading> Home Page </x-slot:heading>
+  <h1>Hello from The Home Page.</h1>
+</x-layout>
+
+<!-- Repeat for about.blade.php -->
+<!-- Repeat for contact.blade.php -->
+```
