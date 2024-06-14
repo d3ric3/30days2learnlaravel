@@ -202,7 +202,7 @@ touch app\resources\views\components\nav-link.blade.php
 <html lang="en" class="h-full bg-gray-100"></html>
 ```
 
-2. Edit class property of body for layout.blade.php
+2. Edit class property of body tag for layout.blade.php
 
 ```html
 <body class="h-full"></body>
