@@ -193,3 +193,59 @@ touch app\resources\views\components\nav-link.blade.php
 ```
 
 12. Optionally you replace the profile image and the email for both desktop and mobile view
+
+## EP05
+
+1. Edit class property of html tag for layout.blade.php
+
+```html
+<html lang="en" class="h-full bg-gray-100"></html>
+```
+
+2. Edit class property of body for layout.blade.php
+
+```html
+<body class="h-full"></body>
+```
+
+3. Edit navigation link to conditionally display active and inactive styling
+
+```php
+<div class="hidden md:block">
+  <a href="/" class="{{ request()->is('/') ? 'active-styling' : 'inactive-styling'" }}>
+  <a href="/about" class="{{ request()->is('about') ? 'active-styling' : 'inactive-styling'" }}>
+  <a href="/contact" class="{{ request()->is('contact') ? 'active-styling' : 'inactive-styling'" }}>
+</div>
+```
+
+4. Create app\resources\views\components\nav-link.blade.php
+
+5. Edit nav-link.blade.php
+
+```php
+// attributes vs props
+// attributes are html attributes, props are not html attributes
+// after 'active' is declare as props, $attributes will not contains 'active'
+// 'active' props is default to false
+@props(['active' => false ])
+
+// after declare 'active' props we can replace request->is('/') to $active
+<a class="{{ $active ? 'active style' : 'inactive style' }}"
+aria-current="{{ $active ? 'page' : 'false' }}"
+{{ $attributes }}
+>
+{{ $slot }}
+</a>
+```
+
+6. Edit layout.blade.php
+
+```php
+// colon before an attribute will let compiler treat the content of that attribute as php code
+
+<div class="hidden md:block">
+  <x-nav-link href="/" :active="request()->is('/') ? true : false" }}>Home</x-nav-link>
+  <x-nav-link href="/about" :active="request()->is('/about') ? true : false" }}>About</x-nav-link>
+  <x-nav-link href="/contact" :active="request()->is('/contact') ? true : false" }}>Contact</x-nav-link>
+</div>
+```
