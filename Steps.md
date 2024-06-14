@@ -53,20 +53,20 @@ Route::get('/contact', function(){
 ```html
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home page</title>
-  </head>
-  <body>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/about">About</a>
-      <a href="/contact">Contact</a>
-    </nav>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Home page</title>
+    </head>
+    <body>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+        </nav>
 
-    <h1>Hello from Home Page.</h1>
-  </body>
+        <h1>Hello from Home Page.</h1>
+    </body>
 </html>
 ```
 
@@ -82,13 +82,13 @@ touch app\resources\views\components\layout.blade.php
 
 ```html
 <body>
-  <nav>
-    <a href="/">Home</a>
-    <a href="/about">About</a>
-    <a href="/contact">Contact</a>
-  </nav>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+    </nav>
 
-  {{ $slot }}
+    {{ $slot }}
 </body>
 ```
 
@@ -97,21 +97,21 @@ touch app\resources\views\components\layout.blade.php
 ```html
 // home.blade.php
 <x-layout>
-  <h1>Hello from Home Page.</h1>
+    <h1>Hello from Home Page.</h1>
 </x-layout>
 ```
 
 ```html
 // about.blade.php
 <x-layout>
-  <h1>Hello from About Page.</h1>
+    <h1>Hello from About Page.</h1>
 </x-layout>
 ```
 
 ```html
 // contact.blade.php
 <x-layout>
-  <h1>Hello from Contact Page.</h1>
+    <h1>Hello from Contact Page.</h1>
 </x-layout>
 ```
 
@@ -133,13 +133,13 @@ touch app\resources\views\components\nav-link.blade.php
 
 ```html
 <body>
-  <nav>
-    <x-nav-link href="/">Home</x-nav-link>
-    <x-nav-link href="/about">About</x-nav-link>
-    <x-nav-link href="/contact">Contact</x-nav-link>
-  </nav>
+    <nav>
+        <x-nav-link href="/">Home</x-nav-link>
+        <x-nav-link href="/about">About</x-nav-link>
+        <x-nav-link href="/contact">Contact</x-nav-link>
+    </nav>
 
-  {{ $slot }}
+    {{ $slot }}
 </body>
 ```
 
@@ -165,7 +165,7 @@ touch app\resources\views\components\nav-link.blade.php
 
 ```html
 <main>
-  <div class="long tailwindcss style here">{{ $slot }}</div>
+    <div class="long tailwindcss style here">{{ $slot }}</div>
 </main>
 ```
 
@@ -173,9 +173,9 @@ touch app\resources\views\components\nav-link.blade.php
 
 ```html
 <header>
-  <div>
-    <h1>{{ $heading }}</h1>
-  </div>
+    <div>
+        <h1>{{ $heading }}</h1>
+    </div>
 </header>
 ```
 
@@ -184,8 +184,8 @@ touch app\resources\views\components\nav-link.blade.php
 ```html
 <!-- home.blade.php -->
 <x-layout>
-  <x-slot:heading> Home Page </x-slot:heading>
-  <h1>Hello from The Home Page.</h1>
+    <x-slot:heading> Home Page </x-slot:heading>
+    <h1>Hello from The Home Page.</h1>
 </x-layout>
 
 <!-- Repeat for about.blade.php -->
@@ -210,11 +210,11 @@ touch app\resources\views\components\nav-link.blade.php
 
 3. Edit navigation link to conditionally display active and inactive styling
 
-```php
+```html
 <div class="hidden md:block">
-  <a href="/" class="{{ request()->is('/') ? 'active-styling' : 'inactive-styling'" }}>
-  <a href="/about" class="{{ request()->is('about') ? 'active-styling' : 'inactive-styling'" }}>
-  <a href="/contact" class="{{ request()->is('contact') ? 'active-styling' : 'inactive-styling'" }}>
+  <a href="/" class="{{ request()->is('/') ? 'active-styling' : 'inactive-styling'}}">
+  <a href="/about" class="{{ request()->is('about') ? 'active-styling' : 'inactive-styling'}}">
+  <a href="/contact" class="{{ request()->is('contact') ? 'active-styling' : 'inactive-styling'}}">
 </div>
 ```
 
@@ -222,15 +222,18 @@ touch app\resources\views\components\nav-link.blade.php
 
 5. Edit nav-link.blade.php
 
-```php
-// attributes vs props
-// attributes are html attributes, props are not html attributes
-// after 'active' is declare as props, $attributes will not contains 'active'
-// 'active' props is default to false
+```html
+<!--
+ attributes vs props
+ attributes are html attributes, props are not html attributes
+ after 'active' is declare as props, $attributes will not contains 'active'
+ 'active' props is default to false
+-->
+
 @props(['active' => false ])
 
-// after declare 'active' props we can replace request->is('/') to $active
-<a class="{{ $active ? 'active style' : 'inactive style' }}"
+<!-- after declare 'active' props we can replace request->is('/') to $active -->
+<a class="{{ $active ? 'rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white' : '"rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white' }}"
 aria-current="{{ $active ? 'page' : 'false' }}"
 {{ $attributes }}
 >
@@ -240,12 +243,21 @@ aria-current="{{ $active ? 'page' : 'false' }}"
 
 6. Edit layout.blade.php
 
-```php
-// colon before an attribute will let compiler treat the content of that attribute as php code
+```html
+<!-- colon before an attribute will let compiler treat the content of that attribute as php code -->
 
 <div class="hidden md:block">
-  <x-nav-link href="/" :active="request()->is('/') ? true : false" }}>Home</x-nav-link>
-  <x-nav-link href="/about" :active="request()->is('/about') ? true : false" }}>About</x-nav-link>
-  <x-nav-link href="/contact" :active="request()->is('/contact') ? true : false" }}>Contact</x-nav-link>
+    <x-nav-link href="/" :active="request()->is('/') ? true : false">
+        Home
+    </x-nav-link>
+    <x-nav-link href="/about" :active="request()->is('/about') ? true : false">
+        About
+    </x-nav-link>
+    <x-nav-link
+        href="/contact"
+        :active="request()->is('/contact') ? true : false"
+    >
+        Contact
+    </x-nav-link>
 </div>
 ```
