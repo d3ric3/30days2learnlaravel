@@ -396,7 +396,7 @@ Route::get('/job/{id}', function($id) {
 </x-layout>
 ```
 
-7. Edit jobs.blade.php to link to job.blade.php
+7. Edit `jobs.blade.php` to link to `job.blade.php`
 
 ```html
 <!-- jobs.blade.php -->
