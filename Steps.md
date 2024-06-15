@@ -261,3 +261,160 @@ aria-current="{{ $active ? 'page' : 'false' }}"
     </x-nav-link>
 </div>
 ```
+
+## EP06
+
+1. Sample blade file with php code (home work)
+
+```html
+<!-- File: nav-link.blade.php -->
+<!-- Sample for rendering anchor or button based on 'type' prop -->
+@props(['active' => false, type => 'a'])
+
+<php if($type == 'a') : ?>
+    <a class"{{ $active ? 'active-style' : 'inactive-style' }} {{ $attributes }}>{{ $slot }}</a>
+<php else : ?>
+    <button class"{{ $active ? 'active-style' : 'inactive-style' }} {{ $attributes }}>{{ $slot }}</button>
+<php endif ?>
+```
+
+```html
+<!-- File: layout.blade.php (usage of nav-link.blade.php) -->
+<x-nav-link :active="false" type="button">This is a button</x-nav-link>
+<x-nav-link :active="false" type="a">This is an anchor</x-nav-link>
+```
+
+2. Sample blade file with blade directive (home work)
+
+```html
+<!-- File: nav-link.blade.php -->
+<!-- Sample for rendering anchor or button based on 'type' prop -->
+@props(['active' => false, type => 'a'])
+
+@if($type == 'a')
+    <a class"{{ $active ? 'active-style' : 'inactive-style' }} {{ $attributes }}>{{ $slot }}</a>
+@else
+    <button class"{{ $active ? 'active-style' : 'inactive-style' }} {{ $attributes }}>{{ $slot }}</button>
+@endif
+```
+
+3. Pass `jobs` variable to `about` page and rename
+    - `about page` to `jobs page`
+    - `about route` to `jobs route`
+
+```php
+// web.php
+Route::get('/jobs', function() {
+    return view('jobs', [
+        'jobs' => [
+            [
+                'id' => 1,
+                'title' => 'Director',
+                'salary' => '$50,000'
+            ],
+            [
+                'id' => 2,
+                'title' => 'Programmer',
+                'salary' => '$10,000'
+            ],
+            [
+                'id' => 3,
+                'title' => 'Teacher',
+                'salary' => '$40,000'
+            ]
+        ]
+    ]);
+});
+```
+
+```html
+<!-- jobs.blade.php -->
+<x-layout>
+    <x-slot:heading>Job Listings</x-slot:heading>
+
+    <ul>
+        @foreach($jobs as $job)
+        <li>
+            <strong>{{ $job['title'] }}:</strong> Pays {{ $job['salary'] }} per
+            year.
+        </li>
+        @endforeach
+    </ul>
+</x-layout>
+```
+
+4. Update `About` nav menu at layout.blade.php to `Jobs` nav menu
+
+```html
+<x-nav-link href="/jobs" :active="request()->is('jobs')">Jobs</x-nav-link>
+```
+
+5. Add `job` route to `web.php`
+
+```php
+// web.php
+Route::get('/job/{id}', function($id) {
+    $jobs = [
+            [
+                'id' => 1,
+                'title' => 'Director',
+                'salary' => '$50,000'
+            ],
+            [
+                'id' => 2,
+                'title' => 'Programmer',
+                'salary' => '$10,000'
+            ],
+            [
+                'id' => 3,
+                'title' => 'Teacher',
+                'salary' => '$40,000'
+            ]
+        ];
+
+/*
+    // alternative solution
+    \Illuminate\Support\Arr::first($jobs, function ($job) use ($id) {
+        return $job['id'] == $id;
+    });
+*/
+
+    $job = \Illuminate\Support\Arr::first($jobs, fn($job) => $job['id'] == $id);
+
+    return view('job', ['job' => $job]);
+});
+```
+
+6. Create new `job.blade.php`
+
+```html
+<x-layout>
+    <x-slot:heading>Job</x-slot:heading>
+
+    <h2 class="font-bold text-lg">{{ $job['title] }}</h2>
+    <p>This job pays {{ $job['salary'] }} per year.</p>
+</x-layout>
+```
+
+7. Edit jobs.blade.php to link to job.blade.php
+
+```html
+<!-- jobs.blade.php -->
+<x-layout>
+    <x-slot:heading>Job Listings</x-slot:heading>
+
+    <ul>
+        @foreach($jobs as $job)
+        <li>
+            <a
+                href="/jobs/{{ $job['id'] }}"
+                class="text-blue-500 hover:underline"
+            >
+                <strong>{{ $job['title'] }}:</strong> Pays {{ $job['salary'] }}
+                per year.
+            </a>
+        </li>
+        @endforeach
+    </ul>
+</x-layout>
+```
