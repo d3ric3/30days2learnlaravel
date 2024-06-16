@@ -421,7 +421,7 @@ Route::get('/job/{id}', function($id) {
 
 ## EP07
 
-1. Edit `web.php`
+1. Edit get jobs route and get job route within `web.php`
 
 ```php
   use App\Models\Job;
