@@ -478,3 +478,31 @@ Route::get('/job/{id}', function($id) {
     }
   }
 ```
+
+## EP08
+
+1. Remove name field and add first_name and last_name for user migration file
+
+```php
+    Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('first_name');
+            $table->string('last_name');
+```
+
+2. Run `php artisan migrate:fresh`
+
+3. Run `php artisan make:migration create_job_listings_table` and edit the created migration file
+
+```php
+    Schema::create('job_listings', function (Blueprint $table){
+        $table->id();
+        $table->string('title');
+        $table->string('salary');
+        $table->timestamps();
+    });
+```
+
+4. Run `php artisan migrate`
+
+5. Use Table Plus and copy job data within App\Models\Job::all() to the sqlite database
