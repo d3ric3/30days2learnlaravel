@@ -542,3 +542,134 @@ Route::get('/job/{id}', function($id) {
 ```
 
 4. Repeat the commands at `step 2` to create a record.
+
+## EP09
+
+1. Edit `UserFactory.php`. Replace `'name'` to `'first_name'` and `'last_name'`
+
+```php
+// UserFactory.php
+public function definition(): array
+{
+    return [
+        'first_name' => fake()->firstName(),
+        'last_name' => fake()->lastName(),
+        ...
+    ];
+}
+```
+
+2. Run commands
+
+```bash
+> php artisan tinker
+> App\Models\User::factory()->create()
+# Create 100 user record in db
+> App\Models\User::factory(100)->create()
+> php artisan make:factory JobFactory
+```
+
+3. Edit `JobFactory.php`. Include `'title'` and `'salary'`.
+
+```php
+class JobFactory extends Factory
+{
+    public function defintion(): array
+    {
+        return [
+            'title' => fake()->jobTitle(),
+            'salary' => '$50,000 USD'
+        ];
+    }
+}
+```
+
+4. Run commands
+
+```bash
+> php artisan tinker
+> App\Models\Job::factory()->create()
+
+BadMethodCallException Call to undefined method App\Models\Job::factory()
+```
+
+5. Edit `Job.php`
+
+```php
+// Models\Jpn.php
+use Illuminate\Database\Eloquent\Factories\HasFactory
+
+class Job extends Model {
+    use HasFactory;
+}
+```
+
+6. Re-run `step 4` and create additional 300 job records. Check the sqlite db record with Table Plus
+
+```bash
+> App\Models\Job::factory(300)->create()
+```
+
+7. To have an unverified user run the following command
+
+```bash
+> php artisan tinker
+> App\Models\User::factory()->unverified()->create()
+```
+
+8. Run `php artisan make:model Employer -m`
+
+9. Edit `create_employers_table` migration file and add `$table->string('name');`
+
+```php
+    Schema::create('employer', function (Blueprint $table) {
+        $table->id();
+        $table->string('name');
+        ...
+    });
+```
+
+10. Edit `create_job_listings_table` migration file and add relationship with Employer Model.
+
+```php
+    Schema::create('job_listings', function (Blueprint $table){
+        $table->id();
+        $table->foreignIdFor(\App\Models\Employer::class);
+        ...
+    });
+```
+
+11. Run `php artisan migration:fresh`
+
+12. Edit `JobFactory.php` to include `'employer_id'`
+
+```php
+    public function definition(): array
+    {
+        return [
+            'title' => fake()->jobTitle(),
+            'employer_id' => Employer::factory(),
+            ...
+        ];
+    }
+```
+
+13. Run `php artisan make:model Employer -f` to create the model and factory.
+
+14. Edit the newly created `EmployerFactory.php` to add `'name'` attribute
+
+```php
+    public function definition(): array
+    {
+        return [
+            'name' => fake()->company()
+        ];
+    }
+```
+
+15. Run the following commands
+
+```bash
+> php artisan tinker
+> App\Models\Job::factory(10)->create()
+```
