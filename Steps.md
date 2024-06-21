@@ -506,3 +506,39 @@ Route::get('/job/{id}', function($id) {
 4. Run `php artisan migrate`
 
 5. Use Table Plus and copy job data within App\Models\Job::all() to the sqlite database
+
+## EP09
+
+1. Edit `job.php` model. `/Jobs` route and `/job/{id}` route should continue to work
+
+```php
+  use Illuminate\Database\Eloquent\Model;
+
+  public class Job extends Model {
+    // refer to db table job_listings
+    protected $table = 'job_listings';
+  }
+```
+
+2. Run these command
+
+```bash
+> php artisan tinker
+> App\Models\Job::create(['title' => 'Acme Director', 'salary' => '$1,000,000']);
+> Illuminate\Database\Eloquent\MassAssignmentException Add [title] to fillable property to allow mass assignment on [App\Models\Job]
+
+```
+
+3. Edit `Models\Job.php`
+
+```php
+  use Illuminate\Database\Eloquent\Model;
+
+  public class Job extends Model {
+    // refer to db table job_listings
+    protected $table = 'job_listings';
+    protected $fillable = ['title', 'salary'];
+  }
+```
+
+4. Repeat the commands at `step 2` to create a record.
