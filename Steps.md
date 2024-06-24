@@ -543,7 +543,7 @@ Route::get('/job/{id}', function($id) {
 
 4. Repeat the commands at `step 2` to create a record.
 
-## EP09
+## EP10
 
 1. Edit `UserFactory.php`. Replace `'name'` to `'first_name'` and `'last_name'`
 
@@ -672,4 +672,53 @@ class Job extends Model {
 ```bash
 > php artisan tinker
 > App\Models\Job::factory(10)->create()
+```
+
+## EP11
+
+1. Create belongs to relation for `Job Model`
+
+```php
+    class Job extends Model {
+        use HasFactory;
+
+        protected $table = 'job_listings';
+
+        protected $fillable = ['title', 'salary'];
+
+        public function employer() {
+            return $this->belongsTo(Employer::class);
+        }
+    }
+```
+
+2. Run this commands to get Employer of a Job.
+
+```bash
+> php artisan tinker
+> $job = App\Models\Job::first();
+> $job->employer;
+> $job->employer->name;
+```
+
+3. Create has many relation for `Employer Model`
+
+```php
+    class Employer extends Model {
+        use HasFactory;
+
+        public function jobs() {
+            return $this->hasMany(Job::class);
+        }
+    }
+```
+
+4. Run this commands to get Jobs belong to Employer.
+
+```bash
+> php artisan tinker
+> $employer = App\Models\Employer::first();
+> $employer->jobs;
+> $employer->jobs[0];
+> $employer->jobs->first();
 ```
