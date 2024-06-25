@@ -722,3 +722,85 @@ class Job extends Model {
 > $employer->jobs[0];
 > $employer->jobs->first();
 ```
+
+## EP12
+
+1. Create Tag model with migration and factory
+
+```bash
+> php artisan make:model Tag -mf
+```
+
+2. Edit `create_tags_table` migration file to include name field. Next create pivot table with the name og `'job_tag'` for many to many relationship. Edit down function to drop `'job_tag'` table.
+
+```php
+  public function up(): void {
+    Schema::create('tags', function(Blueprint $table){
+      $table->id();
+      $table->string('name');
+      $table->timestamps();
+    });
+
+    Schema::create('job_tag', function(Blueprint $table){
+      $table->id();
+      // explicitly declare the foreign id to as job_listing_id
+      $table->foreignIdFor(App\Models\Job::class, 'job_listing_id')->constrained()->cascadeOnDelete();
+      $table->foreignIdFor(App\Models\Tag::class)->constrained()->cascadeOnDelete();
+      $table->timestamps();
+    });
+  }
+
+  public function down(): void {
+    Schema::dropIfExits('tags');
+    Schema::dropIfExits('job_tag');
+  }
+```
+
+3. If we performed a migration and edited migration file we can perform this command to reflect the new changes `php artisan migrate:rollback && php artisan migrate`
+
+4. To turn on delete on cascade for SQLite run this SQL statement `PRAGMA foreign_keys=on`
+
+5. Create many to many relationship on models file
+
+```php
+    // Models\Job.php
+    class Job extends Model {
+        ...
+
+        public function tags() {
+            return $this->brlongsToMany(Tag::class, foreignPivotKey: 'job_listing_id');
+        }
+    }
+
+    // Models\Tag.php
+    class Tag extends Model {
+        ...
+
+        public function jobs() {
+            return $this->brlongsToMany(Job::class, relatedPivotKey: 'job_listing_id');
+        }
+    }
+```
+
+6. Create a record in `job_tag` pivot table with `job_listing_id` of 10. Try to retrieve the record of many to many relationship
+
+```bash
+> php artisan tinker
+> $job = App\Models\job::find(10);
+> $job->tags;
+```
+
+7. Add a many to many relationship record. Attach Tag record with id 7 to Job record with id 10
+
+```bash
+> php artisan tinker
+> $job = App\Models\job::find(10);
+# method 1
+> $job->tags()->attach(7);
+# method 2
+> $job->tags()->attach(App\Models\Tag::find(7));
+# grab all fields
+> $job->tags()->get();
+# grab single field
+> $job->tags()->get()->pluck('name');
+```
