@@ -804,3 +804,52 @@ class Job extends Model {
 # grab single field
 > $job->tags()->get()->pluck('name');
 ```
+
+## EP13
+
+1. Edit `jobs.blade.php`
+
+```php
+<x-layout>
+    <x-slot:heading>
+        Job Listings
+    </x-slot:heading>
+
+    <div class="space-y-4">
+        @foreach ($jobs as $job)
+            <a href="/jobs/{{ $job['id'] }}" class="block px-4 py-6 border border-gray-200 rounded-lg">
+                <div class="font-bold text-blue-500 text-sm">
+                    {{ $job->employer->name }}
+                </div>
+                <div>
+                    <strong>{{ $job['title'] }}:</strong> Pays {{ $job['salary'] }} per year.
+                </div>
+            </a>
+        @endforeach
+    </div>
+</x-layout>
+```
+
+2. Resolving N+1 problem. Navigate to github.com/barryvdh/laravel-debugbar. Install debugbar
+
+```bash
+> composer require barryvdh/laravel-debugbar --dev
+```
+
+3. Resolve the N+1 problem with eager loading. Edit web.php
+
+```php
+Route::get('/jobs', function(){
+    $jobs = Job::with('employer')->get();
+
+    return view('jobs', ['jobs' => $jobs]);
+});
+```
+
+4. Lazy loading can be disable at `AppServiceProvider.php`
+
+```php
+    public function boot(): void {
+        Model::preventLazyLoading();
+    }
+```
