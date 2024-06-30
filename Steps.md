@@ -853,3 +853,48 @@ Route::get('/jobs', function(){
         Model::preventLazyLoading();
     }
 ```
+
+## EP14
+
+1. Pagination. Edit `/jobs` route to paginate with 3 records for each page.
+
+```php
+// web.php
+Route::get('/jobs', function(){
+    $jobs = Job::with('employer')->paginate(3);
+    // simplePaginate: page show previous and next button
+    // $jobs = Job::with('employer')->saimplePaginate(3);
+    // cursorPaginate: page show previous and next button
+    // $jobs = Job::with('employer')->cursorPaginate(3);
+
+    return view('jobs', ['jobs' => $jobs]);
+});
+```
+
+2. Edit `jobs.blade.php` to include pagination links
+
+```php
+    @endforeach
+
+    <div>
+        {{ $jobs->links() }}
+    </div>
+```
+
+3. If we need to manually edit the pagination code then run the following command
+
+```bash
+> php artisan vendor:publish
+# select from the list
+> laravel-pagination
+# a list of pagination blade view will be available
+```
+
+4. We can select the pagination template by editing `AppServiceProvider.php`
+
+```php
+public function boot(): void {
+    Model::preventLazyLoading();
+    Paginator::useBoostrapFive();
+}
+```
