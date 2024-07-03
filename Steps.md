@@ -898,3 +898,50 @@ public function boot(): void {
     Paginator::useBoostrapFive();
 }
 ```
+
+## EP15 - Understanding Database Seeders
+
+1.  To trigger db seed, run `php artisan db:seed` or `php artisan migrate:fresh --seed`
+
+2.  Seeder file is `DatabaseSeeder.php`
+
+3.  Edit DatabaseSeeder.php
+
+```php
+  public function run(): void {
+    User::factory()->create([
+      'first_name' => 'John',
+      'last_name' => 'Doe',
+      'email' => 'text@example.com',
+    ]);
+
+    Job::factory(200)->create();
+  }
+```
+
+4. To run seeder in isolation run `php artisan make:seeder JobSeeder`.
+
+5. Edit `JobSeeder.php`
+
+```php
+    public function run(): void
+    {
+        Job::factory(200)->create();
+    }
+```
+
+6. Now we can run JobSeeder in isolation with `php artisan db:seed --class=JobSeeder`
+
+7. We can reference JobSeeder within DatabaseSeeder.php like the example below
+
+```php
+  public function run(): void {
+    User::factory()->create([
+      'first_name' => 'John',
+      'last_name' => 'Doe',
+      'email' => 'text@example.com',
+    ]);
+
+    $this->call(JobSeeder::class);
+  }
+```
