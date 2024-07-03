@@ -2,7 +2,7 @@
 
 ### Steps on following the learning series
 
-## EP01
+## EP01 - Hello Laravel
 
 1. cd to Herd path
 
@@ -18,7 +18,7 @@ cd example
 
 2. open browse and navigate to "example.test"
 
-## EP02
+## EP02 - Your First Route and View
 
 1. open web.php and add
 
@@ -32,7 +32,7 @@ Route::get('/about', function(){
 
 2. create about.php under view folder with content "This is the about page".
 
-## EP03
+## EP03 - Create Layout File Using Blade Components
 
 1. Create contact route in web.php
 
@@ -115,7 +115,7 @@ touch app\resources\views\components\layout.blade.php
 </x-layout>
 ```
 
-## EP04
+## EP04 - Make a Pretty Layout using Tailwind CSS
 
 1. create nav-link.blade.php
 
@@ -194,7 +194,7 @@ touch app\resources\views\components\nav-link.blade.php
 
 12. Optionally you replace the profile image and the email for both desktop and mobile view
 
-## EP05
+## EP05 - Style The Current Active Navigation Link
 
 1. Edit class property of html tag for layout.blade.php
 
@@ -262,7 +262,7 @@ aria-current="{{ $active ? 'page' : 'false' }}"
 </div>
 ```
 
-## EP06
+## EP06 - View Data and Route Wildcards
 
 1. Sample blade file with php code (home work)
 
@@ -419,7 +419,7 @@ Route::get('/job/{id}', function($id) {
 </x-layout>
 ```
 
-## EP07
+## EP07 - Autoloading, Namespaces and Models
 
 1. Edit get jobs route and get job route within `web.php`
 
@@ -479,7 +479,7 @@ Route::get('/job/{id}', function($id) {
   }
 ```
 
-## EP08
+## EP08 - Introduction to Migrations
 
 1. Remove name field and add first_name and last_name for user migration file
 
@@ -507,7 +507,7 @@ Route::get('/job/{id}', function($id) {
 
 5. Use Table Plus and copy job data within App\Models\Job::all() to the sqlite database
 
-## EP09
+## EP09 - Meet Eloquent
 
 1. Edit `job.php` model. `/Jobs` route and `/job/{id}` route should continue to work
 
@@ -543,7 +543,7 @@ Route::get('/job/{id}', function($id) {
 
 4. Repeat the commands at `step 2` to create a record.
 
-## EP10
+## EP10 - Model Factories
 
 1. Edit `UserFactory.php`. Replace `'name'` to `'first_name'` and `'last_name'`
 
@@ -674,7 +674,7 @@ class Job extends Model {
 > App\Models\Job::factory(10)->create()
 ```
 
-## EP11
+## EP11 - Two Key Eloquent Relationship Types
 
 1. Create belongs to relation for `Job Model`
 
@@ -723,7 +723,7 @@ class Job extends Model {
 > $employer->jobs->first();
 ```
 
-## EP12
+## EP12 - Pivot Tables and BelongsToMany Relationships
 
 1. Create Tag model with migration and factory
 
@@ -805,7 +805,7 @@ class Job extends Model {
 > $job->tags()->get()->pluck('name');
 ```
 
-## EP13
+## EP13 - Eager Loading and the N+1 Problem
 
 1. Edit `jobs.blade.php`
 
@@ -854,7 +854,7 @@ Route::get('/jobs', function(){
     }
 ```
 
-## EP14
+## EP14 - All You Need To Know About Pagination
 
 1. Pagination. Edit `/jobs` route to paginate with 3 records for each page.
 
