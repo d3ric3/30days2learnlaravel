@@ -954,7 +954,7 @@ public function boot(): void {
 
 3. Rename `job.blade.php` to `show.blade.php`
 
-4. Duplicate `show.blade.php` and rename to `create.blade.php`
+4. Duplicate `show.blade.php` and rename to `create.blade.php`. Update the content of x-slot:heading elememt to `Create Job`
 
 5. Update view within web.php:
 
@@ -963,3 +963,67 @@ public function boot(): void {
     - Get /jobs/{id} route, from `job` view to `jobs.show` view
 
 6. Navigate to https://tailwindui.com/components/application-ui/forms/form-layouts and copy the html code and paste to `/view/jobs/create.blade.php`. Remove `Notification` section, `Personal Information` section, `Cover photo` section and `Photo` section
+
+7. Rename 3 occurence `username` to `title` and 1 occurence of `Username` to `Title`. Remove the span element. Add some left padding to the input element. Update the input place holder to some sample job title (Example: Shift Leader). Remove autocomplete for the input element.
+
+```html
+<div class="sm:col-span-4">
+    <label for="username" class="...">Username</label>
+    <div class="mt-2">
+        <div class="...">
+            <span class="...">workcation.com</span>
+            <input type="text" name="username" id="username" ... />
+        </div>
+    </div>
+</div>
+```
+
+8. Duplicate the whole block of html at steps 7. Rename 3 occurence of `title` to `salary` and 1 occurence of `Title` to `Salary`. Update placeholder to `$50,000 Per Year`
+
+9. Update the content of h2 element to `Create a New Job`. Update the content of the p element below h2 to `We just need a handful of details from you.`
+
+10. Update the form method and action. Add @csrf blade directive.
+
+```html
+<!-- create.blade.php -->
+<form method="POST" action="/jobs">
+    @csrf
+    <div>Some other child elements...</div>
+</form>
+```
+
+11. Add the code block to web.php
+
+```php
+  Route::post('/jobs', function() {
+    // validation ...
+
+    Job::create([
+      'title' => request('title'),
+      'salary' => request('salary'),
+      'employer_id' => 1
+    ]);
+
+    return redirect('/jobs');
+  });
+```
+
+12. Update the Job models to allow mass assign of `employer_id`. Alternatively use the $guarded method.
+
+```php
+  public class Job extends Model {
+    // refer to db table job_listings
+    protected $table = 'job_listings';
+    // protected $fillable = ['employer_id', 'title', 'salary'];
+    protected $guarded = [];
+  }
+```
+
+13. Update the Get /jobs route (web.php) to return the query that is order by latest.
+
+```php
+  Route::get('/jobs', function(){
+    $job = Job::with('employer')->latest()->simplePagination(3);
+    ...
+  })
+```
