@@ -945,3 +945,21 @@ public function boot(): void {
     $this->call(JobSeeder::class);
   }
 ```
+
+## EP16 - Forms and CSRF Explained
+
+1. Create `/views/jobs` folder. Move `job.blade.php` and `jobs.blade.php` into `/view/jobs/`
+
+2. Rename `jobs.blade.php` to `index.blade.php`
+
+3. Rename `job.blade.php` to `show.blade.php`
+
+4. Duplicate `show.blade.php` and rename to `create.blade.php`
+
+5. Update view within web.php:
+
+    - Get /jobs route, from `jobs` view to `jobs.index` view
+    - Get /jobs/create route, from `job` view to `jobs.create` view
+    - Get /jobs/{id} route, from `job` view to `jobs.show` view
+
+6. Navigate to https://tailwindui.com/components/application-ui/forms/form-layouts and copy the html code and paste to `/view/jobs/create.blade.php`. Remove `Notification` section, `Personal Information` section, `Cover photo` section and `Photo` section
