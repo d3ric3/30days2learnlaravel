@@ -1027,3 +1027,109 @@ public function boot(): void {
     ...
   })
 ```
+
+## EP17 - Always Validate. Never Trust the User
+
+1. Add a `Create Job` link at the header of `layout.blade.php`. Copy the `pagination.next` button styling at `pagination/tailwind.blade.php` and apply to the `Create Job` link
+
+```html
+<!-- layout.blade.php -->
+<header class="bg-white shadow">
+    <div class="... sm:flex sm:justify-between">
+        <h1 class="...">{{ $heading }}</h1>
+
+        <a href="/jobs/create" class="pagination.next styling here"
+            >Create Job</a
+        >
+    </div>
+</header>
+```
+
+2. Create `views/components/button.blade.php`
+
+```php
+// button.blade.php
+<a {{ $attributes->merge(['class' => 'pagination.next styling here'])}}>{{ $slot}}</a>
+```
+
+3. Update `layout.blade.php` with x-button
+
+```html
+<!-- layout.blade.php -->
+<header class="bg-white shadow">
+    <div class="... sm:flex sm:justify-between">
+        <h1 class="...">{{ $heading }}</h1>
+
+        <x-button href="/jobs/create">Create Job</x-button>
+    </div>
+</header>
+```
+
+4. Add validation for POST /jobs route within web.php.
+
+```php
+// web.php
+  Route::post('/jobs', function() {
+    // validation ...
+    request()->validate([
+        'title' => ['required', 'min:3'],
+        'salary' => ['required']
+    ]);
+
+    Job::create([
+      'title' => request('title'),
+      'salary' => request('salary'),
+      'employer_id' => 1
+    ]);
+
+    return redirect('/jobs');
+  });
+```
+
+5. Display validation error as a summary block. Edit `create.blade.php`
+
+```html
+<div class="sm:col-span-4">
+    <label for="salary" class="...">Salary</label>
+    <div>Other child element</div>
+</div>
+
+<div class="mt-10">
+    @if($errors->any())
+    <ul>
+        @foreach($errors->all() as $error)
+        <li class="text-red-500 italic">{{ $error }}</li>
+        @endforeach
+    </ul>
+    @endif
+</div>
+```
+
+6. Display validation error below each input field. Edit `create.blade.php`. Add client side validation by including `required` attribute to input element
+
+```html
+<div class="sm:col-span-4">
+    <label for="title" class="...">Title</label>
+    <div class="mt-2">
+        <div class="...">
+            <input type="text" name="title" id="title" class="..." required />
+        </div>
+
+        @error('title')
+        <p class="text-xs text-red-500 font-semibold mt-1">{{ $message }}</p>
+        @enderror
+    </div>
+</div>
+<div class="sm:col-span-4">
+    <label for="salary" class="...">Salary</label>
+    <div class="mt-2">
+        <div class="...">
+            <input type="text" name="salary" id="salary" class="..." required />
+        </div>
+
+        @error('salary')
+        <p class="text-xs text-red-500 font-semibold mt-1">{{ $message }}</p>
+        @enderror
+    </div>
+</div>
+```
