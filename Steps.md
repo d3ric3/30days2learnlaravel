@@ -1133,3 +1133,159 @@ public function boot(): void {
     </div>
 </div>
 ```
+
+## EP18 - Editing, Updating, and Deleting a Resource
+
+1. Edit `web.php`. Add Get /jobs/{id}/edit route
+
+```php
+    // web.php
+    Route::get('/jobs/{id}/edit', function ($id) {
+        $job = Job::find($id);
+
+        return view('jobs.edit', ['job' => $job]);
+    });
+```
+
+2. Duplicate /views/components/jobs/create.blade.php and rename to edit.blade.php. Edit edit.blade.php
+
+```html
+// edit.blade.php
+<x-layout>
+    <x-slot:heading>
+        Edit Job: {{ $job->title }}
+        <!-- Edit -->
+    </x-slot:heading>
+
+    <!-- Edit form action, add method patch -->
+    <form method="POST" action="/jobs/{{ $job->id }}">
+        @csrf @method('PATCH')
+
+        <div class="space-y-12">
+            <div class="...">
+                <!-- Remove
+                <h2 class="...">Create a New Job</h2>
+                <p class="...">We just need a handful of details from you.</p>
+                -->
+                <div class="sm:col-span-4">
+                    <label for="title" class="...">Title</label>
+                    <div class="mt-2">
+                        <div class="...">
+                            <!-- added value attribute -->
+                            <input
+                                type="text"
+                                name="title"
+                                id="title"
+                                class="..."
+                                value="{{ $job->title }}"
+                                required
+                            />
+                        </div>
+
+                        @error('title')
+                        <p class="text-xs text-red-500 font-semibold mt-1">
+                            {{ $message }}
+                        </p>
+                        @enderror
+                    </div>
+                </div>
+                <div class="sm:col-span-4">
+                    <label for="salary" class="...">Salary</label>
+                    <div class="mt-2">
+                        <div class="...">
+                            <!-- added value attribute -->
+                            <input
+                                type="text"
+                                name="salary"
+                                id="salary"
+                                class="..."
+                                value="{{ $job->salary }}"
+                                required
+                            />
+                        </div>
+
+                        @error('salary')
+                        <p class="text-xs text-red-500 font-semibold mt-1">
+                            {{ $message }}
+                        </p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Added Delete button -->
+        <div class="mt-6 flex items-center justify-between gap-x-6">
+            <div class="flex items-center">
+                <button
+                    form="delete-form"
+                    class="text-red-500 text-sm font-bold"
+                >
+                    Delete
+                </button>
+            </div>
+            <div class="flex items-center gap-x-6">
+                <!-- chnage element from button to a tag with href -->
+                <a href="/jobs/{{ $job->id }}" class="...">Cancel</a>
+                <div>
+                    <!-- button text changed to "Update" -->
+                    <button type="submit" class="...">Update</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- delete form -->
+    <form
+        id="delete-form"
+        method="POST"
+        action="/jobs/{{ $job->id }}"
+        class="hidden"
+    >
+        @csrf @method('DELETE')
+    </form>
+</x-layout>
+```
+
+3. Edit jobs/show.blade.php. Remove ml-6 style from x-button component
+
+```php
+    <p class="mt-6">
+        <x-button href="/jobs/{{ $job->id }}/edit">Edit Job</x-button>
+    </p>
+```
+
+4. Edit `web.php` add PATCH /jobs/{id} route and DELETE /jobs/{id} route
+
+```php
+    Route::patch('/jobs/{id}', function{$id){
+        request()->validate([
+            'title' => ['required', 'min:3'],
+            'salary' => ['required']
+        ]);
+
+        // authorize (On hold...)
+
+        $job = Job::findOrFail($id);
+
+        $job->update([
+            'title' => request('title'),
+            'salary' => request('salary')
+        ]);
+
+        // // alternative update method
+        // $job->title = request('title');
+        // $job->salary = request('salary');
+        // $job->save();
+
+        return redirect('/jobs/' . $job->id);
+    }):
+
+    Route::delete('/jobs/{id}', function{$id){
+        // authorize (On hold...)
+
+        $job = Job::findOrFail($id)->delete();
+
+        return redirect('/jobs');
+    }):
+```
