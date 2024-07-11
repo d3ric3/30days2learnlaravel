@@ -1289,3 +1289,210 @@ public function boot(): void {
         return redirect('/jobs');
     }):
 ```
+
+## EP19 - Routes Reloaded - 6 Essential Tips
+
+1. Tip 1: Route Model Binding
+
+```php
+  // Old Show
+  Route::get('/jobs/{id}', function($id){
+    $job = Job::find($id);
+
+    return view('jobs.show', ['job' => $job]);
+  });
+
+  // New Show
+  // by convention laravel will treat {job} as id identifier field and parse the Job instance $job
+  Route::get('/jobs/{job}', function(Job $job){
+    return view('jobs.show', ['job' => $job]);
+  });
+
+  /* we can configure the identifier field to other field.
+      The below example we will configure laravel to parse the post instance on slug identifier field
+
+  Route::get('/posts/{post:slug}', function(Post $post){
+    // do something here
+  });
+  */
+
+  // Edit
+  Route::get('/jobs/{job}/edit', function(Job $job){
+    return view('/jobs/edit', ['job' => $job]);
+  });
+
+  // Update
+  Route::patch('/jobs/{job}', function(Job $job){
+    // authorize (On hold...)
+
+    request()->validate([
+      'title' => ['required', 'min:3'],
+      'salary' => ['required']
+    ]);
+
+    $job->update([
+      'title' => request('title'),
+      'salary' => request('salary'),
+    ]);
+
+    return redirect('/jobs/' . $job->id);
+  });
+
+  // Destroy
+  Route::delete('/jobs/{job}', function(Job $job){
+    // authorize (On hold...)
+
+    $job->delete();
+
+    return redirect('/jobs');
+  })
+```
+
+2. Tip 2: Controller Classes
+
+```php
+// JobController.php
+// Create JobController class: php make:controller JobController
+class JobController extends Controller {
+  public function index(){
+    $job = Job::with('employer')->latest()->simplePagination(3);
+
+    return view('jobs.index', [
+      'jobs' => $job
+    ]);
+  }
+
+  public function create(){
+    return view('jobs.create');
+  }
+
+  public function show(Job $job){
+    return view('jobs.show', ['jobs' => $job]);
+  }
+
+  public function store(){
+    request()->validate([
+      'title' => ['required', 'min:3'],
+      'salary' => ['required']
+    ]);
+
+    $job->create([
+      'title' => request('title'),
+      'salary' => request('salary'),
+      'employer_id' => 1
+    ]);
+
+    return redirect('/jobs/');
+  }
+
+  public function edit(Job $job){
+    return view('/jobs/edit', ['job' => $job]);
+  }
+
+  public function update(Job $job){
+    // authorize (On hold...)
+
+    request()->validate([
+      'title' => ['required', 'min:3'],
+      'salary' => ['required']
+    ]);
+
+    $job->update([
+      'title' => request('title'),
+      'salary' => request('salary'),
+    ]);
+
+    return redirect('/jobs/' . $job->id);
+  }
+
+  public function destroy(Job $job){
+    // authorize (On hold...)
+
+    $job->delete();
+
+    return redirect('/jobs');
+  }
+}
+```
+
+```php
+// web.php
+// Index
+Route::get('/jobs', [JobController::class, 'index']);
+// Create
+Route::get('/jobs/create', [JobController::class, 'create']);
+// Show
+Route::get('/jobs/{job}', [JobController::class, 'show']);
+// Store
+Route::post('/jobs', [JobController::class, 'store']);
+// Edit
+Route::get('/jobs/{job}/edit', [JobController::class, 'edit']);
+// Update
+Route::patch('/jobs/{job}', [JobController::class, 'update']);
+// Destroy
+Route::delete('/jobs/{job}', [JobController::class, 'destroy']);
+```
+
+3. Tip 3: Route::view()
+
+```php
+// both are same
+// Useful when the route only serve a view
+Route('/', function(){
+  return view('home');
+});
+// This is the shorthand of the above code
+Route::view('home');
+```
+
+4. Tip 4: Listing Your Routes
+
+```bash
+>php artisan route:list
+# exclude 3rd party library routes
+>php artisan route:list --except-vendor
+```
+
+5. Tip 5: Route Groups
+
+```php
+// web.php
+Route::controller(JobController::class)->group(function(){
+  Route::get('/jobs', 'index');
+  Route::get('/jobs/create', 'create');
+  Route::get('/jobs/{job}', 'show');
+  Route::post('/jobs', 'store');
+  Route::get('/jobs/{job}/edit', 'edit');
+  Route::patch('/jobs/{job}', 'update');
+  Route::delete('/jobs/{job}', 'destroy');
+});
+
+// run php artisan route:list --except-vendor to check the route are the same
+```
+
+6. Tip 6: Route Resource
+
+```php
+  Route::resource('jobs', JobController::class);
+
+  // run php artisan route:list --except-vendor to check the route are the same
+
+  // both example below produce the same result
+  Route::resource('jobs', JobController::class, [
+    'only' => ['index', 'show', 'create', 'store', 'update', 'destroy']
+  ]);
+
+  Route::resource('jobs', JobController::class, [
+    'except' => ['edit']
+  ]);
+```
+
+7. The final web.php is as below as we proceed with next episode
+
+```php
+// web.php
+Route::view('/', 'home');
+ROute::view('/contact', 'contact');
+
+Route::resource('jobs', JobController::class);
+```
