@@ -1496,3 +1496,19 @@ ROute::view('/contact', 'contact');
 
 Route::resource('jobs', JobController::class);
 ```
+
+## EP20 - Starter Kits, Breeze, and Middleware
+
+1. Scaffolding Laravel app
+
+```bash
+> laravel new app
+> Laravel Breeze
+> Blade with Alpine
+> No
+> Pest
+> No
+> SQLite
+```
+
+2. Starter kits are intended to be used at the start of a new project
