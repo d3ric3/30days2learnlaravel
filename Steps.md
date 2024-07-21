@@ -1626,3 +1626,230 @@ Route::resource('jobs', JobController::class);
     </form>
 </x-layout>
 ```
+
+5. Add `/register` route at web.php
+
+```bash
+> php artisan make:controller RegisteredUserController
+```
+
+```php
+// web.php
+use App\Http\Controllers\RegisteredUserController;
+
+// Auth
+Route::get('/register', [RegisteredUserController::class],  'create');
+Route::post('/register', [RegisteredUserController::class],  'store');
+```
+
+```php
+// RegisteredUserController.php
+class RegisteredUserController extends Controller{
+  public function create(){
+    return view('auth.register');
+  }
+
+  public function store() {
+    dd(request()->all());
+  }
+}
+```
+
+6. Create `/resources/views/auth/register.blade.php` with the below content
+
+```php
+  // register.blade.php
+<x-layout>
+    <x-slot:heading>
+        Register
+    </x-slot:heading>
+
+    <form method="POST" action="/register">
+        @csrf
+
+        <div class="space-y-12">
+            <div class="border-b border-gray-900/10 pb-12">
+                <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                    <x-form-field>
+                        <x-form-label for="first_name">First Name</x-form-label>
+
+                        <div class="mt-2">
+                            <x-form-input name="first_name" id="first_name" required />
+
+                            <x-form-error name="first_name" />
+                        </div>
+                    </x-form-field>
+
+                    <x-form-field>
+                        <x-form-label for="last_name">Last Name</x-form-label>
+
+                        <div class="mt-2">
+                            <x-form-input name="last_name" id="last_name" required />
+
+                            <x-form-error name="last_name" />
+                        </div>
+                    </x-form-field>
+
+                    <x-form-field>
+                        <x-form-label for="email">Email</x-form-label>
+
+                        <div class="mt-2">
+                            <x-form-input name="email" id="email" type="email" required />
+
+                            <x-form-error name="email" />
+                        </div>
+                    </x-form-field>
+
+                    <x-form-field>
+                        <x-form-label for="password">Password</x-form-label>
+
+                        <div class="mt-2">
+                            <x-form-input name="password" id="password" type="password" required />
+
+                            <x-form-error name="password" />
+                        </div>
+                    </x-form-field>
+
+                    <x-form-field>
+                        <x-form-label for="password_confirmation">Confirm Password</x-form-label>
+
+                        <div class="mt-2">
+                            <x-form-input name="password_confirmation" id="password_confirmation" type="password" required />
+
+                            <x-form-error name="password_confirmation" />
+                        </div>
+                    </x-form-field>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex items-center justify-end gap-x-6">
+            <a href="/" class="text-sm font-semibold leading-6 text-gray-900">Cancel</a>
+            <x-form-button>Register</x-form-button>
+        </div>
+    </form>
+</x-layout>
+```
+
+7. Create `/resources/views/auth/register.blade.php` with the below content
+
+```php
+// register.blade.php
+<x-layout>
+    <x-slot:heading>
+        Log In
+    </x-slot:heading>
+
+    <form method="POST" action="/login">
+        @csrf
+
+        <div class="space-y-12">
+            <div class="border-b border-gray-900/10 pb-12">
+                <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                    <x-form-field>
+                        <x-form-label for="email">Email</x-form-label>
+
+                        <div class="mt-2">
+                            <x-form-input name="email" id="email" type="email" :value="old('email')" required />
+
+                            <x-form-error name="email" />
+                        </div>
+                    </x-form-field>
+
+                    <x-form-field>
+                        <x-form-label for="password">Password</x-form-label>
+
+                        <div class="mt-2">
+                            <x-form-input name="password" id="password" type="password" required />
+
+                            <x-form-error name="password" />
+                        </div>
+                    </x-form-field>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex items-center justify-end gap-x-6">
+            <a href="/" class="text-sm font-semibold leading-6 text-gray-900">Cancel</a>
+            <x-form-button>Log In</x-form-button>
+        </div>
+    </form>
+</x-layout>
+```
+
+8. Create POST /register route in web.php
+
+```php
+Route::post('/register', [RegisteredUserController::class], 'store');
+```
+
+9. Create `SessionController` and add routes at web.php
+
+```bash
+> php artisan make:controller SessionController
+```
+
+```php
+// web.php
+use App\Http\Controllers\SessionController;
+
+Route::get('/login', [SessionController::class], 'create');
+Route::post('/login', [SessionController::class], 'store');
+```
+
+```php
+// SessionController.php
+class SessionController extends Controller {
+  public function create() {
+    return view('auth.login');
+  }
+
+  public function store() {
+    dd(request()->all());
+  }
+}
+```
+
+10. Edit `resources/views/components/layout.blade.php` to include `login`, `register` and `Log Out` button at the top nav bar
+
+```php
+<div class="flex items-center">
+    <div class="flex-shrink-0">
+        <img
+            class="h-8 w-8"
+            src="https://laracasts.com/images/logo/logo-triangle.svg"
+            alt="Your Company"
+        />
+    </div>
+    <div class="hidden md:block">
+        <div class="ml-10 flex items-baseline space-x-4">
+            <x-nav-link href="/" :active="request()->is('/')">Home</x-nav-link>
+            <x-nav-link href="/jobs" :active="request()->is('jobs')"
+                >Jobs</x-nav-link
+            >
+            <x-nav-link href="/contact" :active="request()->is('contact')"
+                >Contact</x-nav-link
+            >
+        </div>
+    </div>
+</div>
+<div class="hidden md:block">
+    <div class="ml-4 flex items-center md:ml-6">
+        @guest
+        <x-nav-link href="/login" :active="request()->is('login')"
+            >Log In</x-nav-link
+        >
+        <x-nav-link href="/register" :active="request()->is('register')"
+            >Register</x-nav-link
+        >
+        @endguest
+        @auth
+        <form method="POST" action="/logout">
+            @csrf
+
+            <x-form-button>Log Out</x-form-button>
+        </form>
+        @endauth
+    </div>
+</div>
+```
