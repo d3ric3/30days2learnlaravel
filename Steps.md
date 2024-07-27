@@ -1731,10 +1731,10 @@ class RegisteredUserController extends Controller{
 </x-layout>
 ```
 
-7. Create `/resources/views/auth/register.blade.php` with the below content
+7. Create `/resources/views/auth/login.blade.php` with the below content
 
 ```php
-// register.blade.php
+// login.blade.php
 <x-layout>
     <x-slot:heading>
         Log In
@@ -1777,7 +1777,7 @@ class RegisteredUserController extends Controller{
 </x-layout>
 ```
 
-8. Create POST /register route in web.php
+8. Add `POST /register` route in web.php
 
 ```php
 Route::post('/register', [RegisteredUserController::class], 'store');
@@ -1813,6 +1813,7 @@ class SessionController extends Controller {
 10. Edit `resources/views/components/layout.blade.php` to include `login`, `register` and `Log Out` button at the top nav bar
 
 ```php
+// resources/views/components/layout.blade.php
 <div class="flex items-center">
     <div class="flex-shrink-0">
         <img
@@ -1853,3 +1854,98 @@ class SessionController extends Controller {
     </div>
 </div>
 ```
+
+## EP22 - Make a Login and Registration System From Scratch: Part 2
+
+1. Edit `RegisteredUserController.php` to implement `store (login)` method
+
+```php
+// RegisteredUserController.php
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Auth;
+
+class RegisteredUserController extends Controller{
+  public function create(){
+    return view('auth.register');
+  }
+
+  public function store() {
+    //validate
+    $validatedAttributes = request()->validate([
+      'first_name' => ['required'],
+      'last_name' => ['required'],
+      'email' => ['required', 'email', 'max:254'], // if 'confirmed' rule apply here, laravel will look for 'email_confirmation' attribute to compare
+      'password' => ['required', Password::min(6)->letters()->numbers()->max(30), 'confirmed'], // laravel will look for 'password_confirmation' attribute and make sure same with 'password' attribute
+    ]);
+
+    //create the user
+    $user = User::create($validatedAttributes);
+
+    // log in
+    Auth::login($user);
+
+    // redirect somewhere
+    return redirect('/jobs');
+  }
+}
+```
+
+2. If there is mass assignment error. Kindly replace `protected $fillable = [];` with `protected $guarded = [];` located at `Models/User.php`
+
+3. Add `POST /logout` route to web.php
+
+```php
+// web.php
+Route::post('/logout', [SessionController::class, 'destroy']);
+```
+
+4. Add `destroy` method to `SessionController.php`
+
+```php
+// SessionController.php
+use Illuminate\Support\Facades\Auth;
+
+class SessionController extends Controller {
+
+  public function destroy(){
+    Auth::logout();
+
+    return redirect('/');
+  }
+}
+```
+
+5. Implement `store` method for `SessionController.php`
+
+```php
+// SessionController.php
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+
+class SessionController extends Controller {
+
+  public function store(){
+    // validate
+    $validatedAttributes = request()->validate([
+      'email' => ['required', 'email'],
+      'password' => ['required']
+    ]);
+
+    // attempt to login the user
+    if(! Auth::attempt($validatedAttributes)) {
+      // laravel will auto redirect to the form when ValidationException is thrown
+      throw ValidationException::withMessages([
+        'email' => 'Sorry, those credentials do not match.'
+      ]);
+    }
+
+    // regenerate the session token
+    request()->session()->regenerate();
+
+    // redirect
+    return redirect('/jobs');
+  }
+}
+```
+
+6. We may consider these features `rate limiting`, `password reset` but is not covered in this `30 Days to Learn Laravel` series
