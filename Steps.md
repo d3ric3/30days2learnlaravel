@@ -1949,3 +1949,216 @@ class SessionController extends Controller {
 ```
 
 6. We may consider these features `rate limiting`, `password reset` but is not covered in this `30 Days to Learn Laravel` series
+
+## EP23 - 6 Steps to Authorization Mastery
+
+1. Link Employer table to User table. Edit `create_emplayers_table.php`
+
+```php
+// create_emplayers_table.php
+    Schema::create('employers', function(Blueprint $table){
+      $table->id();
+      $table->foreignIdFor(\App\Models\User::class);
+
+```
+
+2. Edit `EmployerFactory.php` to include `'user_id'` attribute
+
+```php
+// EmployerFactory.php
+  public function definition(): array {
+    return [
+      'name' => fake()->company(),
+      'user_id' => User::factory()
+    ];
+  }
+```
+
+3. Re-seed database
+
+```bash
+>php artisan migrate:fresh --seed
+```
+
+4. Edit employer model (Employer.php) to include `user` function
+
+```php
+// Employer.php
+public function user(): BelongsTo {
+  return $this->belongsTo(User::class);
+}
+```
+
+5. Update `edit` function on `JobController.php` to include authorization steps
+
+```php
+// JobController.php
+  public function edit(Job $job){
+
+    if(Auth::guest()) {
+      return redirect('/login');
+    }
+
+    if($job->employer->user->isNot(Auth::user())){
+      abort(403);
+    }
+
+    return view('jobs.edit', ['job' => $job]);
+  }
+```
+
+6. Update `edit` function on `JobController.php` to include Illuminates\Support\Facades\Gate authorizaion steps
+
+```php
+// JobController.php
+  public function edit(Job $job){
+
+    Gate::define('edit.job', function (User $user, Job $job) {
+      return $job->employer->user->is($user);
+    });
+
+    if(Auth::guest()) {
+      return redirect('/login');
+    }
+
+    // laravel will auto send user to 403 unauthorize page
+    Gate::authorize('edit.job', $job);
+
+    /*
+    // if you want to manuall handle the authorization then
+    // use Gate::allows or Gate::denies
+
+      if (Gate::allow('edit.job', $job)) {
+        // do something
+      }
+      if (Gate::denies('edit.job', $job)) {
+        // do something
+      }
+    */
+
+    return view('jobs.edit', ['job' => $job]);
+  }
+```
+
+7. Define Gates inside `AppServiceProvider` and update `JobController.php`
+
+```php
+// AppServiceProvider.php
+  public function boot(): void {
+    Model::preventLazyLoading();
+
+    // cut this login from edit function of JobController.php and paste here
+    Gate::define('edit.job', function (User $user, Job $job) {
+      return $job->employer->user->is($user);
+    });
+  }
+```
+
+```php
+// JobController.php
+  public function edit(Job $job){
+
+    // laravel will auto send user to 403 unauthorize page
+    Gate::authorize('edit.job', $job);
+
+    return view('jobs.edit', ['job' => $job]);
+  }
+```
+
+8. Laravel `can` or `cannot`
+
+```php
+  // sample of can or cannot
+  if (Auth::user()->can('edit.job', $job)){}
+
+  if (Auth::user()->cannot('edit.job', $job)){}
+```
+
+9. Edit `jobs/show.blade.php` to show edit button if user is authorize to edit or hide if otherwise
+
+```html
+  @can('edit.job', $job)
+    <p class="mt-6">
+      <x-button href="/jobs/{{ $job->id }}/edit">Edit Job</x-button>
+    </p>
+  @endcan
+</x-layout>
+```
+
+9. Middleware Authorization. Edit `web.php`
+
+```php
+Route::get('/jobs', [JobController::class, 'index']);
+Route::get('/jobs/create', [JobController::class, 'create']);
+Route::post('/jobs', [JobController::class, 'store'])->middleware('auth');
+Route::get('/jobs/{job}', [JobController::class, 'show']);
+
+// option 1
+// can('edit-job', 'job') (the 'job' refer to the model binding of {job} in the url)
+Route::get('/jobs/{job}/edit', [JobController::class, 'edit'])
+    ->middleware('auth')
+    ->can('edit-job', 'job');
+
+// option 2
+// 'can:edit-job,job' (the job after coma refer to the model binding of {job} in the url)
+Route::get('/jobs/{job}/edit', [JobController::class, 'edit'])
+    ->middleware(['auth', 'can:edit-job,job'])
+
+Route::patch('/jobs/{job}', [JobController::class, 'update']);
+Route::delete('/jobs/{job}', [JobController::class, 'destroy']);
+```
+
+10. Policies. Policies are connected to Eloquent model. Let's create a policy
+
+```bash
+> php artisan make:policy
+> JobPolicy
+> Job
+```
+
+11. Comment out the `Gate::define` code block in `AppServiceProvider.php`
+
+```php
+// AppServiceProvider.php
+  public function boot(): void {
+    Model::preventLazyLoading();
+
+    // Gate::define('edit.job', function (User $user, Job $job) {
+    //   return $job->employer->user->is($user);
+    // });
+  }
+```
+
+12. Edit `JobPolicy.php`. Remove all function and left `public function edit`
+
+```php
+// JobPolicy.php
+class JobPolicy {
+  public function edit(User $user, Job $job): bool {
+    return $job->employer->user->is($user);
+  }
+}
+```
+
+13. Update `web.php` to refer Job `Policy` instead of `Gate`
+
+```php
+// web.php
+
+// option 1
+// can('edit', 'job') refer to the edit policy for job model
+Route::get('/jobs/{job}/edit', [JobController::class, 'edit'])
+    ->middleware('auth')
+    ->can('edit', 'job');
+```
+
+14. Update `jobs/show.blade.php` to use `can` on the job policy
+
+```html
+  @can('edit', $job)
+    <p class="mt-6">
+      <x-button href="/jobs/{{ $job->id }}/edit">Edit Job</x-button>
+    </p>
+  @endcan
+</x-layout>
+```
